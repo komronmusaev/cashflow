@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CashFlow Frontend</title>
+</head>
+<body>
+    <h1>CashFlow Frontend</h1>
+    
+    <h2>Create Budget</h2>
+    <form id="createBudgetForm">
+        <label for="category">Category:</label>
+        <input type="text" id="category" name="category" required>
+        <label for="limit">Limit:</label>
+        <input type="number" id="limit" name="limit" required>
+        <button type="submit">Create Budget</button>
+    </form>
+
+    <h2>Add Expense</h2>
+    <form id="addExpenseForm">
+        <label for="expenseCategory">Expense Category:</label>
+        <input type="text" id="expenseCategory" name="category" required>
+        <label for="amount">Amount:</label>
+        <input type="number" id="amount" name="amount" required>
+        <button type="submit">Add Expense</button>
+    </form>
+
+    <h2>Budget Status</h2>
+    <button id="getBudgetStatus">Get Budget Status</button>
+    <div id="budgetStatus"></div>
+
+    <script>
+        const createBudgetForm = document.getElementById('createBudgetForm');
+        const addExpenseForm = document.getElementById('addExpenseForm');
+        const getBudgetStatusButton = document.getElementById('getBudgetStatus');
+        const budgetStatusDiv = document.getElementById('budgetStatus');
+
+        createBudgetForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const category = event.target.category.value;
+            const limit = parseFloat(event.target.limit.value);
+
+            await fetch('/create_budget', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ category, limit })
+            });
+
+            alert('Budget created successfully');
+        });
+
+        addExpenseForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const category = event.target.category.value;
+            const amount = parseFloat(event.target.amount.value);
+
+            await fetch('/add_expense', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ category, amount })
+            });
+
+            alert('Expense added successfully');
+        });
+
+        getBudgetStatusButton.addEventListener('click', async () => {
+            const response = await fetch('/get_budget_status');
+            const data = await response.json();
+            budgetStatusDiv.innerHTML = '';
+            data.budget_status.forEach(budget => {
+                const budgetInfo = document.createElement('p');
+                budgetInfo.textContent = `Category: ${budget.category}, Spent: $${budget.spent.toFixed(2)}, Limit: $${budget.limit.toFixed(2)}`;
+                budgetStatusDiv.appendChild(budgetInfo);
+            });
+        });
+    </script>
+</body>
+</html>
